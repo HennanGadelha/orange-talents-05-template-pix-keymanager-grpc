@@ -28,18 +28,18 @@ class RemoveChavePixService(@Inject val chavePixRepository: ChavePixRepository,
         val existeChave = chavePixRepository.existsByIdAndClientId(uuidPixId, uuidClientId)
 
         if(!existeChave)  throw ChaveNaoEncontradaException("Chave pix nao encontrado ou nao pertence ao cliente")
+        
+        val chavePix = chavePixRepository.findById(uuidPixId).get()
 
         chavePixRepository.deleteById(uuidPixId)
-
-        
-        //buscando chave pix para delecao no bacen
-        val chavePix = chavePixRepository.findById(uuidPixId).get()
 
         val valorDaChavePix = chavePix.chave.toString()
 
         val request = DeletePixKeyRequest(valorDaChavePix)
 
         val response = bacenClient.deletarChavePix(valorDaChavePix, request)
+
+
 
         if(response.status != HttpStatus.OK)
             throw IllegalStateException("Erro ao remover chave no bacen")
